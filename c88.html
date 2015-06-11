@@ -79,6 +79,9 @@
 				}
 			}
 
+			regOut = document.getElementById("regOut");
+			regOut.innerText = ""+myReg;
+			
 			myPC = c.pc;
 
 			for (var b=0; b<=2; b++){
@@ -91,6 +94,9 @@
 					image.src="images/bit_0.png";
 				}
 			}
+
+			pcOut = document.getElementById("pcOut");
+			pcOut.innerText = ""+myPC;
 
 			disassemble();
 		}
@@ -242,12 +248,14 @@
 			<td><img id="r5" src="images/bit_0.png" /></td>
 			<td><img id="r6" src="images/bit_0.png" /></td>
 			<td><img id="r7" src="images/bit_0.png" /></td>
+			<td id="regOut"></td>
 		</tr>
 		<tr><td colspan="8"><h3>PC:</h3></td></tr>
 		<tr>
 			<td><img id="p0" src="images/bit_0.png" /></td>
 			<td><img id="p1" src="images/bit_0.png" /></td>
 			<td><img id="p2" src="images/bit_0.png" /></td>
+			<td id="pcOut"></td>
 		</tr>
 		<tr>
 			<td colspan="8">
