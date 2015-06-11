@@ -1,6 +1,263 @@
  <!DOCTYPE html>
 <html>
+<head>
+	<script src="c88.js"></script>
+	<script>
+
+		var c = new c88();
+
+		var bits = [
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0
+		];
+
+		var myMem = [0,0,0,0,0,0,0,0];
+	
+		var myReg = 0;
+		var myPC = 0;
+
+		function endsWith(str, suffix) {
+		    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+		}
+
+		function refreshMem(){
+			for (i=0; i<=7; i++){
+				myMem[i] = 0;
+				for (var b=0; b<=7; b++){
+					bitVal = (1<<(7-b));
+					myMem[i] += bits[i*8+b] * bitVal;
+				}
+			}
+			c.mem = myMem;
+			disassemble();
+		}
+
+		function disassemble(){
+			for (var i=0; i<=7; i++){
+				textRow = document.getElementById("d"+i);
+				
+				var op = myMem[i] >> 3;
+				textRow.innerText = c.debug[op](myMem[i] & 7);
+			}
+		}
+
+		function updateMem(){
+			myMem = c.mem;
+			for (var i=0; i<=7; i++){
+				for (var b=0; b<=7; b++){
+					bitVal = (1<<(7-b));
+					bits[i*8+b] = (((myMem[i]&bitVal)>0)?1:0);
+				}
+			}
+
+			for (var i=0; i<=63; i++){
+				image = document.getElementById(""+i);
+				if (bits[i]){
+					image.src="images/bit_1.png";
+				}
+				else{
+					image.src="images/bit_0.png";
+				}
+			}
+
+			myReg = c.reg;
+
+			for (var b=0; b<=7; b++){
+				bitVal = (1<<(7-b));
+				image = document.getElementById("r"+b);
+				if ((myReg&bitVal)>0){
+					image.src="images/bit_1.png";
+				}
+				else{
+					image.src="images/bit_0.png";
+				}
+			}
+
+			myPC = c.pc;
+
+			for (var b=0; b<=2; b++){
+				bitVal = (1<<(2-b));
+				image = document.getElementById("p"+b);
+				if ((myPC&bitVal)>0){
+					image.src="images/bit_1.png";
+				}
+				else{
+					image.src="images/bit_0.png";
+				}
+			}
+
+			disassemble();
+		}
+
+		function toggleBit(image){
+			if (endsWith(image.src,"images/bit_0.png")){
+				image.src="images/bit_1.png";
+				bits[image.id]=1;
+			}
+			else{
+				image.src="images/bit_0.png";
+				bits[image.id]=0;
+			}
+			refreshMem();
+		}
+
+		var runner = -1;
+
+		function runSlow(){
+			stop();
+			runner = setInterval(step, 125);
+		}
+
+		function runFast(){
+			stop();
+			runner = setInterval(step, 1);
+		}
+
+		function step(){
+			c.step();
+			updateMem();
+		}
+
+		function stop(){
+			if (runner > -1){
+				clearInterval(runner);
+			}
+		}
+
+		function reset(){
+			stop();
+			c.reset();
+			updateMem();
+		}
+
+	</script>
+</head>
 <body>
-<script src="c88.js"></script>
+	<h1>C88</h1>
+	<h2>The 8 Address, 8 Bit computer</h2>
+	<table>
+		<tr><td colspan="8"><h3>Memory:</h3></td></tr>
+		<tr>
+			<td><img id="0" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="1" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="2" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="3" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="4" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="5" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="6" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="7" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td id="d0"></td>
+		</tr>
+		<tr>
+			<td><img id="8" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="9" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="10" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="11" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="12" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="13" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="14" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="15" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td id="d1"></td>
+		</tr>
+		<tr>
+			<td><img id="16" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="17" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="18" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="19" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="20" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="21" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="22" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="23" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td id="d2"></td>
+		</tr>
+		<tr>
+			<td><img id="24" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="25" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="26" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="27" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="28" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="29" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="30" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="31" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td id="d3"></td>
+		</tr>
+		<tr>
+			<td><img id="32" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="33" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="34" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="35" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="36" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="37" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="38" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="39" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td id="d4"></td>
+		</tr>
+		<tr>
+			<td><img id="40" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="41" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="42" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="43" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="44" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="45" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="46" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="47" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td id="d5"></td>
+		</tr>
+		<tr>
+			<td><img id="48" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="49" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="50" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="51" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="52" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="53" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="54" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="55" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td id="d6"></td>
+		</tr>
+		<tr>
+			<td><img id="56" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="57" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="58" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="59" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="60" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="61" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="62" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td><img id="63" src="images/bit_0.png" onclick="toggleBit(this)" /></td>
+			<td id="d7"></td>
+		</tr>
+
+		<tr><td colspan="8"><h3>Main register:</h3></td></tr>
+		<tr>
+			<td><img id="r0" src="images/bit_0.png" /></td>
+			<td><img id="r1" src="images/bit_0.png" /></td>
+			<td><img id="r2" src="images/bit_0.png" /></td>
+			<td><img id="r3" src="images/bit_0.png" /></td>
+			<td><img id="r4" src="images/bit_0.png" /></td>
+			<td><img id="r5" src="images/bit_0.png" /></td>
+			<td><img id="r6" src="images/bit_0.png" /></td>
+			<td><img id="r7" src="images/bit_0.png" /></td>
+		</tr>
+		<tr><td colspan="8"><h3>PC:</h3></td></tr>
+		<tr>
+			<td><img id="p0" src="images/bit_0.png" /></td>
+			<td><img id="p1" src="images/bit_0.png" /></td>
+			<td><img id="p2" src="images/bit_0.png" /></td>
+		</tr>
+		<tr>
+			<td colspan="8">
+				<button onclick="step()" >Step</button>
+				<button onclick="runFast()" >Run Fast</button>
+				<button onclick="runSlow()" >Run Slow</button>
+				<button onclick="stop()" >Stop</button>
+				<button onclick="reset()" >Reset</button>
+			</td>
+		</tr>
+	</table>
 </body>
 </html>
