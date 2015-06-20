@@ -7,7 +7,7 @@ C88_STATE_HALT  = 2;
 function signed(i)
 {
   if ( i > 127 )
-    return i - (128*2);
+    return i - 256;
   else
     return i;
 };
